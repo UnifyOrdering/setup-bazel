@@ -36,12 +36,13 @@ async function setupBazelisk() {
   }
 
   core.startGroup('Setup Bazelisk')
-  const toolPath = tc.find('bazelisk', config.bazeliskVersion)
+  let toolPath = tc.find('bazelisk', config.bazeliskVersion)
   if (toolPath) {
     console.log(`Found in cache @ ${toolPath}`)
   } else {
-    await downloadBazelisk()
+    toolPath = await downloadBazelisk()
   }
+  await core.addPath(toolPath)
   core.endGroup()
 }
 
@@ -95,8 +96,7 @@ async function downloadBazelisk() {
   fs.chmodSync(downloadPath, '755');
   const cachePath = await tc.cacheFile(downloadPath, 'bazel', 'bazelisk', version)
   console.log(`Successfully cached bazelisk to ${cachePath}`)
-
-  core.addPath(cachePath)
+  return cachePath
 }
 
 async function setupBazelrc() {
